@@ -1,0 +1,162 @@
+<?php
+// Include database connection
+require 'database.php';
+
+// Query to get the latest bicycles, assuming VID is the primary key (auto-incremented)
+$stmt = $conn->prepare("SELECT * FROM vehicles ORDER BY VID DESC"); // Adjust if using a timestamp column
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Pass - Bicycle Rental Platform</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Your custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome for icons -->
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background color */
+        }
+        header {
+            background-color: #343a40; /* Dark background for header */
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        nav a {
+            color: #ffffff; /* White text for navigation links */
+            margin: 0 15px;
+        }
+        nav a:hover {
+            text-decoration: underline; /* Hover effect for links */
+        }
+        .section {
+            margin: 20px auto; /* Center the section */
+            padding: 20px;
+            background-color: #ffffff; /* White background for sections */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+            max-width: 400px; /* Limit width for the form */
+        }
+        .form-control {
+            border-radius: 20px; /* Rounded edges for input fields */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inner shadow */
+        }
+        .btn-primary {
+            border-radius: 20px; /* Rounded edges for buttons */
+            padding: 10px; /* Add padding for better click area */
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .login-header h2 {
+            font-weight: bold;
+            color: #343a40; /* Dark color for header */
+        }
+        .login-icon {
+            font-size: 50px; /* Icon size */
+            color: #007bff; /* Primary color */
+        }
+
+        .bike-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .bike-card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .bike-card-body {
+            padding: 15px;
+        }
+
+        .bike-card-body h5 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .bike-card-body p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .btn-rent {
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 20px;
+            padding: 8px 20px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-rent:hover {
+            background-color: #218838;
+        }
+
+        .bike-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rental Pass</h1>
+        <nav>
+            <a href="#login">Login</a>
+            <a href="register.php">Register</a>
+            <a href="#bicycles">Bicycles</a>
+        </nav>
+    </header>
+    <main class="container mt-5">
+        <!-- Bicycle List -->
+        <section id="bicycles" class="section">
+            <h2>Available Bicycles</h2>
+            <div id="bike-list" class="row">
+                <?php
+                if ($result->num_rows > 0) {
+                    while ($bike = $result->fetch_assoc()) {
+                        echo "<div class='col-md-4 mb-4'>
+                                <div class='bike-card'>
+                                    <img src='" . htmlspecialchars($bike['image_url']) . "' alt='Bike Image'>
+                                    <div class='bike-card-body'>
+                                        <h5>" . htmlspecialchars($bike['name']) . "</h5>
+                                        <p>" . htmlspecialchars($bike['description']) . "</p>
+                                        <p class='price'>$" . htmlspecialchars($bike['price']) . "/day</p>
+                                        <button class='btn-rent'>Rent Now</button>
+                                    </div>
+                                </div>
+                            </div>";
+                    }
+                } else {
+                    echo "<p>No bicycles available at the moment.</p>";
+                }
+                ?>
+            </div>
+        </section>
+    </main>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
