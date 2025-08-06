@@ -76,9 +76,12 @@ $result = $stmt->get_result();
             background-color: #495057;
         }
         .content {
-            margin-left: 250px;
+            margin-left: 100px;
             padding: 20px;
         }
+        .content h1{
+            text-align: center;  /* center the heading */
+    margin-bottom: 30px;        }
     </style>
 </head>
 <body>
@@ -88,7 +91,8 @@ $result = $stmt->get_result();
             <h3 class="text-white text-center">User Menu</h3>
             <nav class="nav flex-column">
                 <a class="nav-link" href="user_dashboard.php">Dashboard</a>
-                <a class="nav-link" href="view_bicycles.php">View Bicycles</a>
+                <a class="nav-link" href="view_twoWheeler.php">View Bikes</a>
+                <a class="nav-link" href="view_fourWheeler.php">View Cars</a>
                 <a class="nav-link" href="your_rentals.php">Your Rentals</a>
                 <a class="nav-link" href="edit_profile.php">Edit Profile</a>
                 <a class="nav-link" href="logout.php">Logout</a>
