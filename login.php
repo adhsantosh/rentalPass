@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <style>
         /* Premium Dark Theme */
         body {
-            background-color: #1a1a2e;
+            background-color: #f6f3f0;
             color: #e8e8f0;
             font-family: Arial, sans-serif;
         }
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         .login-section {
             max-width: 400px;
-            margin: 100px auto;
+            margin: 150px auto;
             padding: 20px;
             background: #162447;
             border-radius: 10px;
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light">
+<!-- <nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="index.php">Rental Pass</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -119,7 +119,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </li>
         </ul>
     </div>
-</nav>
+</nav> -->
+<?php
+require_once 'header.php'
+?>
+
 
 <!-- Login Section -->
 <div class="login-section">

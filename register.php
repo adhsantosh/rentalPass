@@ -1,27 +1,44 @@
 <?php
-require 'database.php'; // Ensure you have the database connection
+require 'database.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
     $name = $_POST['name'];
     $phone = $_POST['phone'];
     $address = $_POST['address'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT); // Hash the password
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['confirm_password'];
 
-    // Validate server-side
+    // Server-side validation
     if (!preg_match("/^9[0-9]{9}$/", $phone)) {
         echo "<div class='alert alert-danger'>Phone number must start with 9 and be exactly 10 digits.</div>";
+    } elseif (strlen($password) < 6) {
+        echo "<div class='alert alert-danger'>Password must be at least 6 characters long.</div>";
+    } elseif ($password !== $confirmPassword) {
+        echo "<div class='alert alert-danger'>Passwords do not match.</div>";
     } else {
-        // Prepare and execute the SQL statement
-        $stmt = $conn->prepare("INSERT INTO users (name, phone, address, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $name, $phone, $address, $password);
+        // Check for existing phone number
+        $check = $conn->prepare("SELECT * FROM users WHERE phone = ?");
+        $check->bind_param("s", $phone);
+        $check->execute();
+        $checkResult = $check->get_result();
 
-        if ($stmt->execute()) {
-            echo "<div class='alert alert-success'>Registration successful!</div>";
-            header("Location: index.php");
-            exit();
+        if ($checkResult->num_rows > 0) {
+            echo "<div class='alert alert-danger'>Phone number already registered.</div>";
         } else {
-            echo "<div class='alert alert-danger'>Error: " . $stmt->error . "</div>";
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            $stmt = $conn->prepare("INSERT INTO users (name, phone, address, password) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $name, $phone, $address, $hashedPassword);
+
+            if ($stmt->execute()) {
+                echo "<script>
+                        alert('Registration successful!');
+                        window.location.href = 'login.php';
+                      </script>";
+                exit();
+            } else {
+                echo "<div class='alert alert-danger'>Error: " . $stmt->error . "</div>";
+            }
         }
     }
 }
@@ -35,15 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>User Registration - Rental Pass</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Premium Dark Theme */
         body {
-            background-color: #1a1a2e;
+            background-color: #f6f3f0;
             color: #e8e8f0;
             font-family: Arial, sans-serif;
         }
         .container {
             max-width: 400px;
-            margin-top: 50px;
+            margin-top: 90px;
             padding: 20px;
             background-color: #162447;
             border-radius: 10px;
@@ -52,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: #fddb3a;
         }
         .form-control {
@@ -85,45 +101,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>User Registration</h2>
-        <form id="registrationForm" action="register.php" method="POST" onsubmit="return validateForm()">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" name="name" placeholder="Enter your name" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone</label>
-                <input type="text" class="form-control" name="phone" placeholder="Enter your phone number" required>
-            </div>
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" class="form-control" name="address" placeholder="Enter your address" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
-        </form>
-    </div>
+<?php require_once 'header.php'; ?>
 
-    <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<div class="container">
+    <h2>User Registration</h2>
+    <form id="registrationForm" action="register.php" method="POST" onsubmit="return validateForm()">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" name="name" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" class="form-control" name="phone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" class="form-control" name="address" placeholder="Enter your address" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Register</button>
+    </form>
+</div>
 
-    <script>
-        function validateForm() {
-            // Validate phone number
-            var phone = document.forms["registrationForm"]["phone"].value;
-            var phonePattern = /^9[0-9]{9}$/;
-            if (!phonePattern.test(phone)) {
-                alert("Phone number must start with 9 and be exactly 10 digits.");
-                return false;
-            }
-            return true;
+<script>
+    function validateForm() {
+        const phone = document.forms["registrationForm"]["phone"].value;
+        const password = document.forms["registrationForm"]["password"].value;
+        const confirmPassword = document.forms["registrationForm"]["confirm_password"].value;
+        const phonePattern = /^9[0-9]{9}$/;
+
+        if (!phonePattern.test(phone)) {
+            alert("Phone number must start with 9 and be exactly 10 digits.");
+            return false;
         }
-    </script>
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters long.");
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
 </body>
 </html>

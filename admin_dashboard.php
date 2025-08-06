@@ -45,7 +45,8 @@ if (!isset($_SESSION['admin_id'])) {
     <div class="sidebar">
         <h3 class="text-white text-center">Admin Menu</h3>
         <nav class="nav flex-column">
-            <a class="nav-link" href="manage_bicycle.php">Manage Bicycles</a>
+            <a class="nav-link" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
+            <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheler</a>
             <a class="nav-link" href="manage_users.php">Manage Users</a>
             <a class="nav-link" href="view_rentals.php">View Rentals</a>
             <a class="nav-link" href="admin_logout.php">Logout</a>
@@ -56,7 +57,7 @@ if (!isset($_SESSION['admin_id'])) {
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Welcome to the Admin Dashboard</h5>
-                <p class="card-text">Here you can manage bicycles, users, and rentals effectively.</p>
+                <p class="card-text">Here you can manage vehicles, users, and rentals effectively.</p>
             </div>
         </div>
         <!-- Additional dashboard content can go here -->

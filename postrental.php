@@ -1,69 +1,66 @@
 <?php
 session_start();
-require 'database.php'; // Ensure database connection is established
+require 'database.php';
 
-// Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Get the vehicle ID from the URL parameter
-if (isset($_GET['id'])) {
-    $vehicleId = $_GET['id'];
+$userId = $_SESSION['user_id'];
+$vehicleType = $_GET['type'] ?? $_POST['vehicle_type'] ?? null;  // 'two' or 'four'
+$vehicleId = $_GET['id'] ?? $_POST['vehicle_id'] ?? null;
 
-    // Fetch vehicle details from the database
-    $stmt = $conn->prepare("SELECT * FROM vehicles WHERE VID = ?");
-    $stmt->bind_param("i", $vehicleId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $vehicle = $result->fetch_assoc();
-
-    // Check if vehicle exists
-    if (!$vehicle) {
-        echo "Vehicle not found!";
-        exit();
-    }
-} else {
-    // If no vehicle ID is passed, redirect to the available bicycles page
-    header("Location: view_bicycles.php");
+if (!$vehicleType || !$vehicleId) {
+    header("Location: index.php");
     exit();
 }
 
-// Handle form submission to confirm rental
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $userId = $_SESSION['user_id'];
-    $vehicleId = $_POST['vehicle_id'];
+// Determine table and ID column
+if ($vehicleType === 'two') {
+    $table = 'two_wheeler';
+    $idCol = 'TWID';
+} elseif ($vehicleType === 'four') {
+    $table = 'four_wheeler';
+    $idCol = 'FWID';
+} else {
+    die("Invalid vehicle type.");
+}
+
+// Fetch vehicle details
+$stmt = $conn->prepare("SELECT * FROM $table WHERE $idCol = ? AND available = 1");
+$stmt->bind_param("i", $vehicleId);
+$stmt->execute();
+$vehicle = $stmt->get_result()->fetch_assoc();
+
+if (!$vehicle) {
+    die("Vehicle not found or unavailable.");
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rentalStart = $_POST['rental_start'];
     $rentalEnd = $_POST['rental_end'];
 
-    // Prepare query to insert rental details into the database
-    $stmt = $conn->prepare("INSERT INTO rentals (UID, VID, rental_start, rental_end) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $userId, $vehicleId, $rentalStart, $rentalEnd);
-
-    // Debug: Check if prepare() was successful
-    if (!$stmt) {
-        die("Failed to prepare SQL statement: " . $conn->error);
+    // Insert into rentals table accordingly
+    if ($vehicleType === 'two') {
+        $insert = $conn->prepare("INSERT INTO rentals (UID, TWID, rental_start, rental_end) VALUES (?, ?, ?, ?)");
+        $insert->bind_param("iiss", $userId, $vehicleId, $rentalStart, $rentalEnd);
+    } else {
+        $insert = $conn->prepare("INSERT INTO rentals (UID, FWID, rental_start, rental_end) VALUES (?, ?, ?, ?)");
+        $insert->bind_param("iiss", $userId, $vehicleId, $rentalStart, $rentalEnd);
     }
 
-    // Execute query and check for success
-    if ($stmt->execute()) {
-        // Optionally, update the bicycle's availability to 0 (unavailable)
-        $updateStmt = $conn->prepare("UPDATE vehicles SET available = 0 WHERE VID = ?");
-        $updateStmt->bind_param("i", $vehicleId);
-        
-        // Debug: Check if update query preparation was successful
-        if (!$updateStmt) {
-            die("Failed to prepare UPDATE statement: " . $conn->error);
-        }
+    if ($insert->execute()) {
+        // Update availability
+        $update = $conn->prepare("UPDATE $table SET available = 0 WHERE $idCol = ?");
+        $update->bind_param("i", $vehicleId);
+        $update->execute();
 
-        if ($updateStmt->execute()) {
-            echo "Rental successful! The bicycle has been marked as unavailable.";
-        } else {
-            echo "Error: Failed to update bicycle availability. " . $updateStmt->error;
-        }
+        echo "Rental successful!";
+        header("Refresh:2; url=user_dashboard.php");
+        exit();
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error: " . $insert->error;
     }
 }
 ?>

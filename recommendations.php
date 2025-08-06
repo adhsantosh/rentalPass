@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'database.php';
+require 'recommendation_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     die("Access denied.");
@@ -8,14 +9,16 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// Sample query to get rental recommendations based on collaborative filtering
-// In a real application, implement collaborative filtering logic here
-$result = $conn->query("SELECT * FROM vehicles WHERE available = 1 ORDER BY RAND() LIMIT 3");
-$recommendations = [];
+// Generate two-wheeler recommendations
+$twMatrix = getSimilarityMatrix($conn, "TWID");
+$twRecommendations = getRecommendations($conn, $userId, $twMatrix, "TWID");
 
-while ($row = $result->fetch_assoc()) {
-    $recommendations[] = $row;
-}
+// Generate four-wheeler recommendations
+$fwMatrix = getSimilarityMatrix($conn, "FWID");
+$fwRecommendations = getRecommendations($conn, $userId, $fwMatrix, "FWID");
 
-echo json_encode($recommendations);
+echo json_encode([
+    'two_wheeler' => $twRecommendations,
+    'four_wheeler' => $fwRecommendations
+]);
 ?>

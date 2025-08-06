@@ -90,9 +90,9 @@ $user = $result->fetch_assoc();
         <div class="sidebar">
             <h3 class="text-white text-center">User Menu</h3>
             <nav class="nav flex-column">
-            <a class="nav-link" href="user_dashboard.php">Dashboard</a>
-
-                <a class="nav-link" href="view_bicycles.php">View Bicycles</a>
+                <a class="nav-link" href="user_dashboard.php">Dashboard</a>
+                <a class="nav-link" href="view_twoWheeler.php">View Bikes</a>
+                <a class="nav-link" href="view_four_Wheeler">View Cars</a>
                 <a class="nav-link" href="your_rentals.php">Your Rentals</a>
                 <a class="nav-link" href="edit_profile.php">Edit Profile</a>
                 <a class="nav-link" href="logout.php">Logout</a>

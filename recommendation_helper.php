@@ -1,60 +1,59 @@
 <?php
-// recommendation_helper.php
-
-function getBicycleSimilarityMatrix($conn) {
-    // Fetch all rental data
-    $rentals = $conn->query("SELECT UID, VID FROM rentals");
+function getSimilarityMatrix($conn, $columnName) {
+    $query = "SELECT UID, $columnName FROM rentals WHERE $columnName IS NOT NULL";
+    $rentals = $conn->query($query);
     
-    $userBikes = [];
+    $userItems = [];
     while ($row = $rentals->fetch_assoc()) {
-        $userBikes[$row['UID']][] = $row['VID'];
+        $userItems[$row['UID']][] = $row[$columnName];
     }
 
     $similarityMatrix = [];
-    $bicycleCounts = [];
+    $itemCounts = [];
 
-    foreach ($userBikes as $bicycles) {
-        foreach ($bicycles as $b1) {
-            if (!isset($bicycleCounts[$b1])) $bicycleCounts[$b1] = 0;
-            $bicycleCounts[$b1]++;
-            foreach ($bicycles as $b2) {
-                if ($b1 == $b2) continue;
-                if (!isset($similarityMatrix[$b1][$b2])) $similarityMatrix[$b1][$b2] = 0;
-                $similarityMatrix[$b1][$b2]++;
+    foreach ($userItems as $items) {
+        foreach ($items as $i1) {
+            if (!isset($itemCounts[$i1])) $itemCounts[$i1] = 0;
+            $itemCounts[$i1]++;
+            foreach ($items as $i2) {
+                if ($i1 == $i2) continue;
+                if (!isset($similarityMatrix[$i1][$i2])) $similarityMatrix[$i1][$i2] = 0;
+                $similarityMatrix[$i1][$i2]++;
             }
         }
     }
 
-    foreach ($similarityMatrix as $b1 => $related) {
-        foreach ($related as $b2 => $count) {
-            $similarityMatrix[$b1][$b2] = $count / sqrt($bicycleCounts[$b1] * $bicycleCounts[$b2]);
+    foreach ($similarityMatrix as $i1 => $related) {
+        foreach ($related as $i2 => $count) {
+            $similarityMatrix[$i1][$i2] = $count / sqrt($itemCounts[$i1] * $itemCounts[$i2]);
         }
     }
+
     return $similarityMatrix;
 }
 
-function getRecommendedBicycles($conn, $userId, $similarityMatrix, $numRecommendations = 5) {
-    $stmt = $conn->prepare("SELECT VID FROM rentals WHERE UID = ?");
+function getRecommendations($conn, $userId, $similarityMatrix, $columnName, $limit = 5) {
+    $stmt = $conn->prepare("SELECT $columnName FROM rentals WHERE UID = ? AND $columnName IS NOT NULL");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    $userBikes = [];
+
+    $userItems = [];
     while ($row = $result->fetch_assoc()) {
-        $userBikes[] = $row['VID'];
+        $userItems[] = $row[$columnName];
     }
 
     $recommendations = [];
-    foreach ($userBikes as $bicycle) {
-        if (!isset($similarityMatrix[$bicycle])) continue;
-        foreach ($similarityMatrix[$bicycle] as $relatedBike => $similarity) {
-            if (in_array($relatedBike, $userBikes)) continue;
-            if (!isset($recommendations[$relatedBike])) $recommendations[$relatedBike] = 0;
-            $recommendations[$relatedBike] += $similarity;
+    foreach ($userItems as $item) {
+        if (!isset($similarityMatrix[$item])) continue;
+        foreach ($similarityMatrix[$item] as $relatedItem => $score) {
+            if (in_array($relatedItem, $userItems)) continue;
+            if (!isset($recommendations[$relatedItem])) $recommendations[$relatedItem] = 0;
+            $recommendations[$relatedItem] += $score;
         }
     }
 
     arsort($recommendations);
-    return array_slice(array_keys($recommendations), 0, $numRecommendations);
+    return array_slice(array_keys($recommendations), 0, $limit);
 }
 ?>
