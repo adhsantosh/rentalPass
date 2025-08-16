@@ -13,10 +13,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
-        echo "No user found with that phone number.";
+        echo '
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            font-family:Arial, sans-serif;
+            font-size:20px;
+            color:#ff0000;
+            text-align:center;
+        ">
+            No user found! Redirecting to registration page in <span id="countdown">3</span> seconds...
+        </div>
+    
+        <script>
+            let seconds = 3;
+            const countdown = document.getElementById("countdown");
+            const interval = setInterval(() => {
+                seconds--;
+                countdown.textContent = seconds;
+                if(seconds <= 0) {
+                    clearInterval(interval);
+                    window.location.href = "register.php";
+                }
+            }, 1000);
+        </script>';
         exit();
     }
-
+    
+    
+    
     $user = $result->fetch_assoc();
 
     if (password_verify($password, $user['password'])) {

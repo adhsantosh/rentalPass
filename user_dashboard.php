@@ -4,82 +4,81 @@ require 'database.php';
 require 'recommendation_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+    header('Location: login.php');
+    exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$userId = $_SESSION['user_id'];
 
-// Fetch user info
-$stmt = $conn->prepare("SELECT * FROM users WHERE UID = ?");
-$stmt->bind_param("i", $user_id);
+// Get user name
+$userName = 'User';
+$stmt = $conn->prepare("SELECT name FROM users WHERE UID=?");
+$stmt->bind_param("i", $userId);
 $stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// Get similarity matrices and recommendations
-$twMatrix = getSimilarityMatrix($conn, 'TWID');
-$fwMatrix = getSimilarityMatrix($conn, 'FWID');
-
-$twRecommendations = getRecommendations($conn, $user_id, $twMatrix, 'TWID');
-$fwRecommendations = getRecommendations($conn, $user_id, $fwMatrix, 'FWID');
-
-// Fetch two-wheeler recommendation details
-$twoWheelers = [];
-if (!empty($twRecommendations)) {
-    $in = str_repeat('?,', count($twRecommendations) - 1) . '?';
-    $stmt = $conn->prepare("SELECT * FROM two_wheeler WHERE TWID IN ($in)");
-    $stmt->bind_param(str_repeat("i", count($twRecommendations)), ...$twRecommendations);
-    $stmt->execute();
-    $twoWheelers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$res = $stmt->get_result();
+if ($row = $res->fetch_assoc()) {
+    $userName = $row['name'];
 }
+$stmt->close();
 
-// Fetch four-wheeler recommendation details
-$fourWheelers = [];
-if (!empty($fwRecommendations)) {
-    $in = str_repeat('?,', count($fwRecommendations) - 1) . '?';
-    $stmt = $conn->prepare("SELECT * FROM four_wheeler WHERE FWID IN ($in)");
-    $stmt->bind_param(str_repeat("i", count($fwRecommendations)), ...$fwRecommendations);
-    $stmt->execute();
-    $fourWheelers = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// Fetch user's rentals
+$rentalQuery = "
+    SELECT r.rental_id, r.rental_start, r.rental_end, r.status,
+           tw.name AS tw_name, tw.model AS tw_model, tw.price AS tw_price,
+           fw.name AS fw_name, fw.model AS fw_model, fw.price AS fw_price
+    FROM rentals r
+    LEFT JOIN two_wheeler tw ON r.TWID = tw.TWID
+    LEFT JOIN four_wheeler fw ON r.FWID = fw.FWID
+    WHERE r.UID = ?
+    ORDER BY r.rental_start DESC
+";
+$stmt = $conn->prepare($rentalQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$rentalResult = $stmt->get_result();
+$userRentals = [];
+while ($row = $rentalResult->fetch_assoc()) {
+    $userRentals[] = $row;
 }
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .sidebar {
-            height: 100vh;
-            background-color: #343a40;
-            padding: 20px;
-        }
-        .sidebar a {
-            color: #ffffff;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .content {
-            margin-left: 150px;
-            padding: 20px;
-        }
-        .card-img-top {
-            height: 180px;
-            object-fit: cover;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; margin:0; color:#333;}
+        .dashboard-wrapper { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: #2c3e50; color:#fff; flex-shrink:0; }
+        .sidebar h3 { padding:20px; margin:0; background:#233140; }
+        .sidebar .nav-link { color:#ecf0f1; padding:15px 20px; text-decoration:none; display:block; border-bottom:1px solid #34495e; }
+        .sidebar .nav-link:hover { background:#34495e; }
+        .main-content { flex-grow:1; padding:20px 40px; }
+        .container { max-width:1200px; margin:0 auto; background:#fff; padding:20px 40px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.05);}
+        .header { border-bottom:1px solid #eee; padding-bottom:20px; margin-bottom:20px; }
+        .header h1 { margin:0; font-size:24px; }
+        h2 { font-size:20px; color:#2c3e50; margin-top:40px; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        table th, table td { border:1px solid #ddd; padding:8px; text-align:left; }
+        table th { background:#f5f5f5; }
+        #recommendations-container { display:flex; flex-wrap:wrap; gap:20px; justify-content:flex-start; margin-top:10px;}
+        .vehicle-card { border:1px solid #ddd; border-radius:8px; width:250px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .vehicle-card:hover { transform: translateY(-5px); }
+        .vehicle-card img { max-width:100%; height:150px; object-fit:cover; border-radius:5px; }
+        .vehicle-card h3 { margin:10px 0 5px; font-size:18px; }
+        .vehicle-card p { margin:0 0 10px; color:#7f8c8d; }
+        .rent-btn { display:inline-block; text-decoration:none; color:#fff; background:#3498db; padding:10px 20px; border-radius:5px; font-weight:bold; }
+        .loading { text-align:center; font-style:italic; color:#777; }
     </style>
 </head>
 <body>
-<div class="d-flex">
-    <!-- Sidebar -->
+<div class="dashboard-wrapper">
     <div class="sidebar">
-        <h3 class="text-white text-center">User Menu</h3>
-        <nav class="nav flex-column">
+        <h3>User Menu</h3>
+        <nav>
             <a class="nav-link" href="user_dashboard.php">Dashboard</a>
             <a class="nav-link" href="view_twoWheeler.php">View Bikes</a>
             <a class="nav-link" href="view_fourWheeler.php">View Cars</a>
@@ -89,104 +88,110 @@ if (!empty($fwRecommendations)) {
         </nav>
     </div>
 
-    <!-- Main Content -->
-    <div class="content">
-        <h1 class="text-center">Welcome, <?php echo htmlspecialchars($user['name']); ?>!</h1>
-
-        <!-- Profile Info -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header bg-primary text-white">Your Profile</div>
-                    <div class="card-body">
-                        <p><strong>Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-                        <p><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
-                        <p><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></p>
-                    </div>
-                </div>
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1>Welcome, <?php echo htmlspecialchars($userName); ?>!</h1>
             </div>
 
-            <!-- Recent Rentals -->
-            <div class="col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header bg-warning text-white">Recent Rentals</div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            <?php
-                            $rentalStmt = $conn->prepare("SELECT * FROM rentals WHERE UID = ? ORDER BY rental_start DESC LIMIT 5");
-                            $rentalStmt->bind_param("i", $user_id);
-                            $rentalStmt->execute();
-                            $rentalResult = $rentalStmt->get_result();
+            <!-- Your Rentals -->
+            <h2>Your Rentals</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vehicle Name</th>
+                        <th>Model</th>
+                        <th>Price</th>
+                        <th>Rental Start</th>
+                        <th>Rental End</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($userRentals as $r): ?>
+                    <?php 
+                        $name = $r['tw_name'] ?? $r['fw_name'];
+                        $model = $r['tw_model'] ?? $r['fw_model'];
+                        $price = $r['tw_price'] ?? $r['fw_price'];
+                    ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($name); ?></td>
+                        <td><?php echo htmlspecialchars($model); ?></td>
+                        <td><?php echo htmlspecialchars($price); ?></td>
+                        <td><?php echo $r['rental_start'] ?? '-'; ?></td>
+                        <td><?php echo $r['rental_end'] ?? '-'; ?></td>
+                        <td><?php echo ucfirst($r['status']); ?></td>
+                        <td></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
 
-                            if ($rentalResult->num_rows > 0) {
-                                while ($r = $rentalResult->fetch_assoc()) {
-                                    $type = $r['TWID'] ? "Two-Wheeler ID: " . $r['TWID'] : "Four-Wheeler ID: " . $r['FWID'];
-                                    echo "<li class='list-group-item'>" . $type . " | Rented on: " . $r['rental_start'] . "</li>";
-                                }
-                            } else {
-                                echo "<li class='list-group-item'>No recent rentals.</li>";
-                            }
-                            ?>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recommendations -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-success text-white">Recommended Two-Wheelers for You</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <?php foreach ($twoWheelers as $tw): ?>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card">
-                                        <img src="<?php echo htmlspecialchars($tw['photo']); ?>" class="card-img-top" alt="Bike">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo htmlspecialchars($tw['name']); ?></h5>
-                                            <p><?php echo htmlspecialchars($tw['model']); ?></p>
-                                            <p><strong>Price:</strong> <?php echo htmlspecialchars($tw['price']); ?></p>
-                                            <a href="rent_twoWheeler.php?id=<?php echo $tw['TWID']; ?>" class="btn btn-primary">Rent</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                            <?php if (empty($twoWheelers)) echo "<p class='pl-3'>No two-wheeler recommendations available.</p>"; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-12 mt-4">
-                <div class="card">
-                    <div class="card-header bg-info text-white">Recommended Four-Wheelers for You</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <?php foreach ($fourWheelers as $fw): ?>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card">
-                                        <img src="<?php echo htmlspecialchars($fw['photo']); ?>" class="card-img-top" alt="Car">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><?php echo htmlspecialchars($fw['name']); ?></h5>
-                                            <p><?php echo htmlspecialchars($fw['model']); ?></p>
-                                            <p><strong>Price:</strong> <?php echo htmlspecialchars($fw['price']); ?></p>
-                                            <a href="rent_fourWheeler.php?id=<?php echo $fw['FWID']; ?>" class="btn btn-primary">Rent</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                            <?php if (empty($fourWheelers)) echo "<p class='pl-3'>No four-wheeler recommendations available.</p>"; ?>
-                        </div>
-                    </div>
-                </div>
+            <!-- Recommendations -->
+            <h2>Recommended For You</h2>
+            <div id="recommendations-container">
+                <p class="loading">Loading recommendations...</p>
             </div>
         </div>
-    </div><!-- end content -->
-</div><!-- end flex -->
+    </div>
+</div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('recommendations-container');
+    fetch('recommendations.php')
+        .then(res => res.json())
+        .then(data => {
+            container.innerHTML = '';
+            if(!data) return;
+
+            const types = ['two_wheeler','four_wheeler'];
+
+            types.forEach(type => {
+                // Hybrid
+                (data[type].hybrid || []).forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = 'vehicle-card';
+                    const photo = v.photo || 'path/to/default.png';
+                    card.innerHTML = `
+                        <img src="${photo}" alt="${v.brand}">
+                        <h3>${v.brand}</h3>
+                        <p>${v.type === 'four_wheeler' ? v.brand : v.brand}</p>
+                        <p><strong>Price:</strong> Rs. ${v.price}/day</p>
+                        <a href="rent_vehicle.php?type=${v.type==='four_wheeler'?'fourWheeler':'twoWheeler'}&id=${v.id}" class="rent-btn">Rent Now</a>
+                    `;
+                    container.appendChild(card);
+                });
+
+                // Pure CF (yellow background)
+                (data[type].cf || []).forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = 'vehicle-card';
+                    card.style.backgroundColor = '#f6f3f0'; // light yellow
+                    const photo = v.photo || 'path/to/default.png';
+                    card.innerHTML = `
+                        <img src="${photo}" alt="${v.brand}">
+                        <h3>${v.brand}</h3>
+                        <p>${v.type === 'four_wheeler' ? v.brand : v.brand}</p>
+                        <p><strong>Price:</strong> Rs. ${v.price}/day</p>
+                        <a href="rent_vehicle.php?type=${v.type==='four_wheeler'?'fourWheeler':'twoWheeler'}&id=${v.id}" class="rent-btn">Rent Now</a>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+
+            if(container.children.length === 0){
+                container.innerHTML = '<p>No recommendations yet.</p>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            container.innerHTML = '<p>Error loading recommendations.</p>';
+        });
+});
+
+
+</script>
 </body>
 </html>
