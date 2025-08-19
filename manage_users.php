@@ -15,29 +15,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['delete_user'])) {
         // Single delete
         $uid = $_POST['uid'];
+
+        // Delete rentals first to avoid foreign key issues
+        $stmt = $conn->prepare("DELETE FROM rentals WHERE UID = ?");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+
+        // Then delete user
         $stmt = $conn->prepare("DELETE FROM users WHERE UID = ?");
         $stmt->bind_param("i", $uid);
         if ($stmt->execute()) {
             $success_message = "User deleted successfully!";
         } else {
-            $error_message = "Error deleting user.";
+            $error_message = "Error deleting user: " . $stmt->error;
         }
     } elseif (isset($_POST['bulk_delete']) && !empty($_POST['selected_users'])) {
         // Bulk delete
         $ids = $_POST['selected_users']; // array of IDs
-        // Prepare placeholders for the query
+
+        // Prepare placeholders and types
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $types = str_repeat('i', count($ids));
+
+        // Delete rentals first
+        $stmt = $conn->prepare("DELETE FROM rentals WHERE UID IN ($placeholders)");
+        $stmt->bind_param($types, ...$ids);
+        $stmt->execute();
+
+        // Then delete users
         $stmt = $conn->prepare("DELETE FROM users WHERE UID IN ($placeholders)");
         $stmt->bind_param($types, ...$ids);
         if ($stmt->execute()) {
             $success_message = count($ids) . " users deleted successfully!";
         } else {
-            $error_message = "Error deleting users.";
+            $error_message = "Error deleting users: " . $stmt->error;
         }
     }
 }
 
+// Fetch users
 $users = $conn->query("SELECT * FROM users");
 ?>
 
@@ -49,16 +65,15 @@ $users = $conn->query("SELECT * FROM users");
 <title>Manage Users with Filter & Bulk Actions</title>
 <link rel="stylesheet" href="admin-common.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-
 <style>
     .table th, .table td { vertical-align: middle; }
 </style>
-
 </head>
 <body>
 <div class="sidebar">
     <h3 class="text-white text-center mb-4">Admin Menu</h3>
     <nav class="nav flex-column">
+         <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
         <a class="nav-link" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
         <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheeler</a>
         <a class="nav-link active" href="manage_users.php">Manage Users</a>
@@ -129,7 +144,6 @@ $users = $conn->query("SELECT * FROM users");
 </div>
 
 <script>
-// Filter function to show/hide table rows based on search input
 function filterTable() {
     const input = document.getElementById('searchInput').value.toLowerCase();
     const table = document.getElementById('usersTable');
@@ -140,39 +154,26 @@ function filterTable() {
         const name = cells[1].textContent.toLowerCase();
         const phone = cells[2].textContent.toLowerCase();
         const address = cells[3].textContent.toLowerCase();
-        if (
-            name.includes(input) ||
-            phone.includes(input) ||
-            address.includes(input)
-        ) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        row.style.display = (name.includes(input) || phone.includes(input) || address.includes(input)) ? '' : 'none';
     }
 }
 
-// Toggle all checkboxes when clicking the header checkbox
 function toggleSelectAll(source) {
     const checkboxes = document.querySelectorAll('input[name="selected_users[]"]');
     checkboxes.forEach(cb => cb.checked = source.checked);
     toggleBulkDeleteBtn();
 }
 
-// Enable or disable the bulk delete button based on any checkbox selected
 function toggleBulkDeleteBtn() {
     const checkboxes = document.querySelectorAll('input[name="selected_users[]"]');
     const bulkBtn = document.getElementById('bulkDeleteBtn');
-    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-    bulkBtn.disabled = !anyChecked;
+    bulkBtn.disabled = !Array.from(checkboxes).some(cb => cb.checked);
 }
 
-// Confirm bulk delete action
 function confirmBulkDelete() {
     return confirm('Are you sure you want to delete selected users?');
 }
 
-// Attach checkbox change listeners to enable bulk button
 document.querySelectorAll('input[name="selected_users[]"]').forEach(cb => {
     cb.addEventListener('change', toggleBulkDeleteBtn);
 });

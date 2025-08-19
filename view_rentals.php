@@ -22,8 +22,7 @@ if ($filter === 'four') {
         SELECT r.*, u.name AS user_name, f.name AS vehicle_name, r.status AS rental_status
         FROM rentals r 
         JOIN users u ON r.UID = u.UID 
-        JOIN four_wheeler f ON r.VID = f.FWID
-        WHERE r.vehicle_type = 'four'
+        JOIN four_wheeler f ON r.FWID = f.FWID
         ORDER BY r.rental_start ASC
     ");
 } else {
@@ -31,8 +30,7 @@ if ($filter === 'four') {
         SELECT r.*, u.name AS user_name, v.name AS vehicle_name, r.status AS rental_status
         FROM rentals r 
         JOIN users u ON r.UID = u.UID 
-        JOIN vehicles v ON r.VID = v.VID
-        WHERE r.vehicle_type = 'two'
+        JOIN two_wheeler v ON r.TWID = v.TWID
         ORDER BY r.rental_start ASC
     ");
 }
@@ -41,21 +39,68 @@ if ($filter === 'four') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Rentals</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="admin-common.css">
-    <style>
-        .filter-btns {
-            margin-bottom: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Rentals</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="admin-common.css">
+<style>
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background: #2c3e50;
+    padding-top: 20px;
+}
+
+.sidebar h3 {
+    color: #fff;
+    text-align: center;
+}
+
+.sidebar .nav-link {
+    color: #ecf0f1;
+    padding: 10px 20px;
+    display: block;
+    border-bottom: 1px solid #34495e;
+}
+
+.sidebar .nav-link:hover {
+    background: #34495e;
+}
+
+.content {
+    margin-left: 250px; /* equal to sidebar width */
+    padding: 20px 40px;
+}
+
+.filter-btns {
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+thead.thead-dark {
+    background-color: #343a40;
+    color: #fff;
+}
+</style>
 </head>
 <body>
+
 <div class="sidebar">
-    <h3 class="text-white text-center">Admin Menu</h3>
+    <h3>Admin Menu</h3>
     <nav class="nav flex-column">
+         <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
         <a class="nav-link" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
         <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheeler</a>
         <a class="nav-link" href="manage_users.php">Manage Users</a>
@@ -63,8 +108,9 @@ if ($filter === 'four') {
         <a class="nav-link" href="admin_logout.php">Logout</a>
     </nav>
 </div>
+
 <div class="content">
-    <h1 class="text-center">View Rentals</h1>
+    <h1 class="text-center mb-4">View Rentals</h1>
 
     <div class="filter-btns text-center">
         <a href="?type=two" class="btn btn-outline-primary <?php echo ($filter === 'two') ? 'active' : ''; ?>">Two-Wheelers</a>

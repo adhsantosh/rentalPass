@@ -1,4 +1,4 @@
-<!-- this page is only accessible by admin-->
+<!-- this page is only accessible by admin -->
 <?php
 session_start();
 require 'database.php';
@@ -85,7 +85,6 @@ $twoWheeler = $conn->query("SELECT * FROM two_wheeler");
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="admin-common.css">
     <style>
-
         .form-container {
             background: white; padding: 30px;
             border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -99,9 +98,11 @@ $twoWheeler = $conn->query("SELECT * FROM two_wheeler");
         }
         .alert {
             margin-top: 20px;
-    
         }
-        
+        .btn-edit {
+            background-color: green;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +110,7 @@ $twoWheeler = $conn->query("SELECT * FROM two_wheeler");
 <div class="sidebar">
     <h3 class="text-center">Admin Menu</h3>
     <nav class="nav flex-column">
+        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
         <a class="nav-link active" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
         <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheeler</a>
         <a class="nav-link" href="manage_users.php">Manage Users</a>
@@ -167,10 +169,11 @@ $twoWheeler = $conn->query("SELECT * FROM two_wheeler");
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($bike['name']) ?> - <?= htmlspecialchars($bike['model']) ?></h5>
                             <p><strong>Price:</strong> Rs. <?= htmlspecialchars($bike['price']) ?></p>
-                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this bike?');">
+                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this bike?');" style="display:inline-block;">
                                 <input type="hidden" name="vid" value="<?= $bike['TWID'] ?>">
                                 <button type="submit" name="delete_bike" class="btn btn-danger btn-sm">Delete</button>
                             </form>
+                            <a href="edit_twoWheeler.php?id=<?= $bike['TWID'] ?>" class="btn btn-edit btn-sm">Edit</a>
                         </div>
                     </div>
                 </div>
