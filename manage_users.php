@@ -73,6 +73,7 @@ $users = $conn->query("SELECT * FROM users");
 <div class="sidebar">
     <h3 class="text-white text-center mb-4">Admin Menu</h3>
     <nav class="nav flex-column">
+         <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
         <a class="nav-link" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
         <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheeler</a>
         <a class="nav-link active" href="manage_users.php">Manage Users</a>

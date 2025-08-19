@@ -110,6 +110,7 @@ $twoWheeler = $conn->query("SELECT * FROM two_wheeler");
 <div class="sidebar">
     <h3 class="text-center">Admin Menu</h3>
     <nav class="nav flex-column">
+        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
         <a class="nav-link active" href="manage_twoWheeler.php">Manage Two-Wheeler</a>
         <a class="nav-link" href="manage_fourWheeler.php">Manage Four-Wheeler</a>
         <a class="nav-link" href="manage_users.php">Manage Users</a>
