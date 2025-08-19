@@ -1,44 +1,64 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background-color: #f8f9fa;
-
-    padding: 0;
+/* Fixed header styling */
+.header1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(52, 58, 64, 0.9); /* dark gray with opacity */
+  color: #ffffff;
+  padding: 15px 2%;
+  z-index: 1000;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 1rem;
-    text-align: center;
+/* Title: Rental Pass */
+.header1 h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-nav a {
-    color: white;
-    margin: 0 10px;
-    text-decoration: none;
+/* Custom color split */
+.rental-text {
+  color: #ffe484; /* wheat/yellow */
 }
 
-section {
-    margin: 2rem;
+.pass-text {
+  color: #ff4d4d; /* soft red */
 }
 
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
+/* Navigation container */
+.header1 nav {
+  display: flex;
+  gap: 8px;
 }
 
-button:hover {
-    background-color: #45a049;
+.header1 nav a:first-child {
+  color: #ffb347;  /* Neon Peach */
+  font-weight: 600;
 }
 
-h1 {
-    margin-bottom: 20px;
+/* Nav links default */
+.header1 nav a {
+  display: inline-block;
+  color: #e8e8f0;
+  padding: 6px 14px; /* reduced hover area */
+  font-size: 1rem;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 25px;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.25s ease;
 }
 
-.nav-link {
-    font-weight: bold;
+/* Nav links on hover */
+.header1 nav a:hover {
+  background-color:#ffb347						; /* light purple */
+  color: #ffffff;
+  transform: scale(1.02);
 }
