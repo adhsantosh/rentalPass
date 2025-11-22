@@ -4,61 +4,70 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(52, 58, 64, 0.9); /* dark gray with opacity */
-  color: #ffffff;
-  padding: 15px 2%;
+  background-color: rgba(22, 36, 71, 0.95); /* primary dark blue with slight opacity */
+  color: #f6f3f0; /* off-white text for readability */
+  padding: 7px 0.2%;
   z-index: 1000;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: space-between;
   align-items: center;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
+  transition: background-color 0.3s ease;
 }
 
 /* Title: Rental Pass */
 .header1 h1 {
   margin: 0;
+  padding:10px 2%;
   font-size: 28px;
   font-weight: bold;
 }
 
 /* Custom color split */
 .rental-text {
-  color: #ffe484; /* wheat/yellow */
+  color: #fddb3a; /* mustard accent */
 }
 
 .pass-text {
-  color: #ff4d4d; /* soft red */
+  color: #ffc107; /* slightly lighter mustard for contrast */
 }
 
 /* Navigation container */
 .header1 nav {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap; 
+  margin-left: 10px;
 }
 
+/* Nav first link highlight */
 .header1 nav a:first-child {
-  color: #ffb347;  /* Neon Peach */
+  color: #fddb3a;  /* mustard accent */
   font-weight: 600;
+  border-radius: 25px;
+  padding: 6px 14px;
+  transition: background 0.3s, transform 0.25s;
 }
 
 /* Nav links default */
 .header1 nav a {
   display: inline-block;
-  color: #e8e8f0;
-  padding: 6px 14px; /* reduced hover area */
+  color: #f6f3f0; /* off-white */
+  padding: 6px 20px; /* reduced horizontal padding */
   font-size: 1rem;
   text-decoration: none;
   font-weight: 500;
   border-radius: 25px;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.25s ease;
+  white-space: nowrap; /* prevent wrapping of individual links */
 }
 
 /* Nav links on hover */
 .header1 nav a:hover {
-  background-color:#ffb347						; /* light purple */
-  color: #ffffff;
-  transform: scale(1.02);
+  background-color: #fddb3a; /* mustard accent */
+  color: #162447; /* primary dark text on hover */
+  transform: scale(1.05);
 }

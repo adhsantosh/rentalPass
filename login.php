@@ -183,6 +183,8 @@ require_once 'header.php'
         return true;
     }
 </script>
+<?php include 'footer.php'; ?>
+
 
 </body>
 </html>

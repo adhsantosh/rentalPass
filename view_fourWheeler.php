@@ -178,7 +178,7 @@ body {
                     while ($vehicle = $result->fetch_assoc()) {
                         $photoPath = !empty($vehicle['photo']) ? htmlspecialchars($vehicle['photo']) : 'default_car.png';
                         echo "
-                        <div class='col-md-4 mb-4'>
+                        <div class='col-md-5 mb-4'>
                             <div class='card h-100'>
                                 <img src='" . $photoPath . "' class='card-img-top' alt='Car Image'>
                                 <div class='card-body d-flex flex-column justify-content-between'>
