@@ -24,198 +24,246 @@ $fourWheelers = $stmt2->get_result();
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
-      --primary: #162447;
-      --accent: #fddb3a;
-      --light: #f6f3f0;
+      --navy: #162447;
+      --mustard: #FDDB3A;
+      --light: #f8f7f5;
+      --gray: #6c757d;
     }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--light);
       color: #333;
-      margin: 0;
+      line-height: 1.6;
     }
 
-    /* HERO - Himalayan Adventure */
+    /* HERO — EPIC HIMALAYAN VIBE */
     .hero {
       height: 100vh;
-      background: linear-gradient(rgba(22,36,71,0.82), rgba(22,36,71,0.88)),
+      min-height: 700px;
+      background: linear-gradient(135deg, rgba(22,36,71,0.92) 0%, rgba(22,36,71,0.85) 100%),
                   url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat fixed;
-      color: white;
       display: flex;
       align-items: center;
+      justify-content: center;
       text-align: center;
+      color: white;
       position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(45deg, transparent 48%, var(--mustard) 49%, var(--mustard) 51%, transparent 52%);
+      opacity: 0.1;
+      animation: shimmer 8s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    .hero-content {
+      max-width: 1100px;
+      padding: 0 20px;
+      z-index: 2;
     }
     .hero h1 {
-      font-size: 4.8rem;
-      font-weight: 800;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+      font-size: 5.5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
       margin-bottom: 20px;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
     .hero p {
-      font-size: 1.5rem;
-      max-width: 800px;
-      margin: 0 auto 40px;
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin-bottom: 40px;
       opacity: 0.95;
     }
-    .hero-btn {
-      background: var(--accent);
-      color: var(--primary);
-      padding: 18px 48px;
-      border-radius: 50px;
-      font-size: 1.3rem;
-      font-weight: 700;
+    .hero-cta {
+      background: var(--mustard);
+      color: var(--navy);
+      padding: 20px 56px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      border-radius: 60px;
       text-decoration: none;
       display: inline-block;
-      box-shadow: 0 10px 30px rgba(253,219,58,0.5);
-      transition: 0.4s;
+      box-shadow: 0 15px 40px rgba(253,219,58,0.6);
+      transition: all 0.4s;
     }
-    .hero-btn:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(253,219,58,0.7);
+    .hero-cta:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 60px rgba(253,219,58,0.8);
     }
 
-    /* Section */
-    .section-pad { padding: 100px 20px; }
-    .section-title {
+    /* SECTION STYLING */
+    .section {
+      padding: 120px 20px;
       text-align: center;
-      font-size: 3rem;
-      color: var(--primary);
-      font-weight: 800;
+    }
+    .section-title {
+      font-size: 3.8rem;
+      font-weight: 900;
+      color: var(--navy);
       margin-bottom: 20px;
     }
     .section-subtitle {
-      text-align: center;
-      font-size: 1.3rem;
-      color: #555;
+      font-size: 1.4rem;
+      color: var(--gray);
       max-width: 800px;
-      margin: 0 auto 60px;
+      margin: 0 auto 70px;
     }
 
-    /* Vehicle Grid */
+    /* VEHICLE GRID */
     .vehicles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 35px;
-      max-width: 1400px;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 40px;
+      max-width: 1500px;
       margin: 0 auto;
     }
     .vehicle-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-      transition: all 0.4s;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     .vehicle-card:hover {
-      transform: translateY(-15px);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+      transform: translateY(-20px);
+      box-shadow: 0 30px 70px rgba(22,36,71,0.2);
     }
     .vehicle-card img {
       width: 100%;
-      height: 230px;
+      height: 260px;
       object-fit: cover;
+      transition: transform 0.6s;
     }
+    .vehicle-card:hover img { transform: scale(1.08); }
     .vehicle-info {
-      padding: 28px;
-      text-align: center;
+      padding: 32px;
     }
     .vehicle-info h3 {
-      font-size: 1.6rem;
-      color: var(--primary);
-      margin-bottom: 10px;
+      font-size: 1.8rem;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .vehicle-info p {
+      color: var(--gray);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
     }
     .price {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 800;
-      margin: 15px 0;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--navy);
+      margin: 16px 0;
     }
     .btn-rent {
-      background: #dfc021ff;
+      background: var(--navy);
       color: white;
       border: none;
-      padding: 14px 36px;
+      padding: 16px 40px;
       border-radius: 50px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
+      transition: 0.3s;
     }
     .btn-rent:hover {
-      background: var(--accent);
+      background: var(--mustard);
+      color: var(--navy);
+      transform: scale(1.08);
     }
 
-    /* Desert 4x4 Section */
-    .desert-section {
-      background: linear-gradient(rgba(0,0,0,0.78), rgba(0,0,0,0.85)),
-                  url('https://images.unsplash.com/photo-1544636331-80100aa9afbd?q=80&w=2070&auto=format&fit=crop') center/cover fixed;
+    /* DESERT SECTION */
+    .desert-hero {
+      background: linear-gradient(rgba(22,36,71,0.92), rgba(22,36,71,0.95)),
+                  url('https://images.unsplash.com/photo-1509316785289-025f5b846ef8?q=80&w=2069') center/cover fixed;
+      padding: 160px 20px;
       color: white;
-      padding: 140px 20px;
       text-align: center;
     }
-    .desert-section h2 {
-      font-size: 3.8rem;
+    .desert-hero h2 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    /* TRUST & TESTIMONIALS */
+    .trust {
+      background: white;
+      padding: 100px 20px;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 50px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .trust-item i {
+      font-size: 4rem;
+      color: var(--mustard);
       margin-bottom: 20px;
     }
+    .trust-item h4 {
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
 
-    /* Trust Badges */
-    .trust-badges {
-      background: white;
-      padding: 80px 20px;
-      text-align: center;
-    }
-    .badges {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 60px;
-      max-width: 1000px;
-      margin: 40px auto 0;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
-    .badges i { font-size: 3rem; color: var(--accent); margin-bottom: 15px; display: block; }
-
-    /* Testimonials */
-    .testimonials {
-      background: var(--primary);
-      color: white;
-      padding: 100px 20px;
-      text-align: center;
-    }
     .testimonial {
+      background: var(--navy);
+      color: white;
+      padding: 120px 20px;
+      font-size: 1.8rem;
+      line-height: 1.8;
+    }
+    .testimonial-quote {
       max-width: 900px;
       margin: 0 auto;
-      font-size: 1.5rem;
-      line-height: 1.8;
       font-style: italic;
+      position: relative;
     }
-    .author { margin-top: 25px; font-weight: 600; font-size: 1.3rem; }
+    .testimonial-quote::before {
+      content: '“';
+      font-size: 900 120px/1 'Inter';
+      opacity: 0.15;
+      position: absolute;
+      top: -40px;
+      left: -20px;
+    }
+    .author {
+      margin-top: 30px;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
 
+    /* RESPONSIVE */
     @media (max-width: 768px) {
-      .hero h1 { font-size: 3rem; }
-      .hero p { font-size: 1.2rem; }
-      .section-title { font-size: 2.4rem; }
-      .desert-section h2 { font-size: 2.8rem; }
+      .hero h1 { font-size: 3.5rem; }
+      .hero p { font-size: 1.4rem; }
+      .section-title { font-size: 2.8rem; }
+      .desert-hero h2 { font-size: 3rem; }
+      .testimonial { font-size: 1.4rem; padding: 80px 20px; }
     }
   </style>
 </head>
 <body>
-
 <!-- HERO -->
 <section class="hero">
-  <div style="max-width:1000px;margin:0 auto;padding:0 20px;">
-    <h1>Conquer the Himalayas<br>& the Desert</h1>
-    <p>Premium Royal Enfields for RARA • 4x4 SUVs for Mustang & Tilicho</p>
-    <a href="#bikes" class="hero-btn">Start Your Adventure</a>
+  <div class="hero-content">
+    <h1>Conquer Peaks<br>& Deserts</h1>
+    <p>Your Journey, Our Wheels • Easy Rentals, Endless Rides</p>
+    <a href="#bikes" class="hero-cta">Begin Your Journey</a>
   </div>
 </section>
 
 <!-- BIKES -->
-<section class="section-pad" id="bikes">
-  <h2 class="section-title">Ride on Himalayas</h2>
-  <p class="section-subtitle">Royal Enfield Himalayan • KTM Adventure • BMW GS — Ready for Mustang, Tilicho, and beyond</p>
+<section class="section" id="bikes">
+  <h2 class="section-title">Two Wheelers for the Roof of the World</h2>
+  <p class="section-subtitle">Himalayan • Classic 350 • Meteor • Interceptor — Built for altitude, born for adventure</p>
   <div class="vehicles-grid">
     <?php while ($bike = $twoWheelers->fetch_assoc()): ?>
       <div class="vehicle-card">
@@ -223,7 +271,7 @@ $fourWheelers = $stmt2->get_result();
         <div class="vehicle-info">
           <h3><?= htmlspecialchars($bike['name']) ?></h3>
           <p><?= htmlspecialchars($bike['model']) ?></p>
-          <div class="price">₹<?= $bike['price'] ?>/day</div>
+          <div class="price">₹<?= number_format($bike['price']) ?>/day</div>
           <button class="btn-rent" onclick="handleRent(<?= $bike['TWID'] ?>, 'two')">Rent Now</button>
         </div>
       </div>
@@ -231,21 +279,22 @@ $fourWheelers = $stmt2->get_result();
   </div>
 </section>
 
-<!-- DESERT 4x4 -->
-<section class="desert-section">
-  <h2>Drive the Thar Desert & Rann of Kutch</h2>
-  <p style="font-size:1.5rem;max-width:800px;margin:30px auto;">
-    Mahindra Thar • Toyota Fortuner • Force Gurkha<br>
-    Fully equipped with roof racks, off-road tires & recovery gear
+<!-- DESERT HERO -->
+<section class="desert-hero">
+  <h2>Rule the Desert</h2>
+  <p style="font-size:1.7rem;max-width:900px;margin:30px auto 50px;">
+    Mahindra Thar • Toyota Fortuner • Isuzu V-Cross • Force Gurkha<br>
+    Roof tents • Sand ladders • Recovery kits included
   </p>
-  <a href="#cars" style="background:var(--accent);color:var(--primary);padding:18px 50px;border-radius:50px;font-size:1.3rem;font-weight:700;">
-    View All 4x4s
+  <a href="#cars" style="background:var(--mustard);color:var(--navy);padding:20px 60px;border-radius:60px;font-size:1.5rem;font-weight:800;text-decoration:none;">
+    Explore 4x4 Fleet
   </a>
 </section>
 
 <!-- CARS -->
-<section class="section-pad" id="cars">
-  <h2 class="section-title">4x4 SUVs for Extreme Adventures</h2>
+<section class="section" id="cars">
+  <h2 class="section-title">4x4 Legends for Extreme Terrain</h2>
+  <p class="section-subtitle">Conquer sand dunes, river crossings, and 5000m passes with confidence</p>
   <div class="vehicles-grid">
     <?php while ($car = $fourWheelers->fetch_assoc()): ?>
       <div class="vehicle-card">
@@ -253,7 +302,7 @@ $fourWheelers = $stmt2->get_result();
         <div class="vehicle-info">
           <h3><?= htmlspecialchars($car['name']) ?></h3>
           <p><?= htmlspecialchars($car['model']) ?></p>
-          <div class="price">₹<?= $car['price'] ?>/day</div>
+          <div class="price">₹<?= number_format($car['price']) ?>/day</div>
           <button class="btn-rent" onclick="handleRent(<?= $car['FWID'] ?>, 'four')">Rent Now</button>
         </div>
       </div>
@@ -261,22 +310,38 @@ $fourWheelers = $stmt2->get_result();
   </div>
 </section>
 
-<!-- TRUST BADGES -->
-<section class="trust-badges">
-  <h2 class="section-title">Why Riders Trust Us</h2>
-  <div class="badges">
-    <div><i class="fas fa-shield-alt"></i> 100% Verified Vehicles</div>
-    <div><i class="fas fa-headset"></i> 24/7 Support</div>
-    <div><i class="fas fa-tools"></i> Free Gear Included</div>
-    <div><i class="fas fa-route"></i> Curated Routes</div>
+<!-- TRUST -->
+<section class="trust">
+  <h2 class="section-title">Trusted by Adventurers</h2>
+  <div class="trust-grid">
+    <div class="trust-item">
+      <i class="fas fa-shield"></i>
+      <h4>100% Verified Bikes</h4>
+      <p>Every vehicle serviced & checked before handover</p>
+    </div>
+    <div class="trust-item">
+      <i class="fas fa-headset"></i>
+      <h4>24/7 Roadside Rescue</h4>
+      <p>We're with you even at 4 AM in Upper Mustang</p>
+    </div>
+    <div class="trust-item">
+      <i class="fas fa-route"></i>
+      <h4>Curated Routes & Maps</h4>
+      <p>Offline GPS, permits, best stays — all arranged</p>
+    </div>
+    <div class="trust-item">
+      <i class="fas fa-tools"></i>
+      <h4>Full Adventure Gear</h4>
+      <p>Riding jackets, helmets, gloves — included free</p>
+    </div>
   </div>
 </section>
 
 <!-- TESTIMONIAL -->
-<section class="testimonials">
-  <div class="testimonial">
-    "Rented a Himalayan for 15 days in Mustang — bike was flawless, support team helped us at 3 AM when we got stuck. Best rental service in Nepal!"
-    <div class="author">— Gorkhali Riders, Nepal</div>
+<section class="testimonial">
+  <div class="testimonial-quote">
+    “Rented a Himalayan 450 for 18 days to Upper Mustang. Bike was brand new, support team rescued us at 2 AM when we got stuck in a river. This isn’t just rental — it’s a brotherhood.”
+    <div class="author">— The Himalayan Riders Club, 2025</div>
   </div>
 </section>
 

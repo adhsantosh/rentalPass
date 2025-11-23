@@ -53,7 +53,7 @@ $stmt->close();
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f7f6; margin:0; color:#333;
-            padding-bottom: 100px; /* Prevent content overlap with chat */
+            padding-bottom: 100px;
         }
         .dashboard-wrapper { display: flex; min-height: 100vh; }
         .sidebar { width: 250px; background: #2c3e50; color:#fff; flex-shrink:0; }
@@ -76,7 +76,7 @@ $stmt->close();
         .rent-btn { display:block; margin:0 auto 12px; background:#3498db; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:600; }
         .rent-btn:hover { background:#2980b9; }
 
-        /* === WHATSAPP STYLE CHAT PANEL === */
+        /* WHATSAPP STYLE CHAT PANEL */
         #userChatPanel {
             position:fixed; bottom:0; right:20px; width:400px; height:620px;
             background:white; border-radius:18px 18px 0 0; box-shadow:0 15px 50px rgba(0,0,0,0.3);
@@ -87,36 +87,15 @@ $stmt->close();
             background:#162447; color:white; padding:14px 20px; font-weight:600; font-size:18px;
             display:flex; justify-content:space-between; align-items:center;
         }
-        #userChatPanel .header .info { display:flex; align-items:center; gap:12px; }
-        #userChatPanel .header .info img {
-            width:44px; height:44px; border-radius:50%; background:#fff; padding:4px;
+        #chatMessages {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+            background: #f5f2ee;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25S0 63.807 0 50zm50 0c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25-25-11.193-25-25z' fill='%23d9d2c9' fill-opacity='0.03'/%3E%3C/svg%3E");
         }
-       /* Chat container */
-#chatMessages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #f5f2ee; /* soft background */
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25S0 63.807 0 50zm50 0c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25-25-11.193-25-25z' fill='%23d9d2c9' fill-opacity='0.03'/%3E%3C/svg%3E");
-}
-
-/* Common message styling */
-#chatMessages .msg {
-    max-width: 70%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-    animation: fadeIn 0.4s ease;
-    position: relative;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* User message */
+        #chatMessages .msg {
+            max-width: 70%; padding: 10px 14px; border-radius: 18px; line-height: 1.5; word-wrap: break-word;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12); animation: fadeIn 0.4s ease; position: relative;
+        }
 #chatMessages .user {
     background: #10145dff;
     color: white;
@@ -128,8 +107,6 @@ $stmt->close();
     padding: 10px 14px;
 
 }
-
-/* Admin message */
 #chatMessages .admin {
     background: #ffffff;
     color: #111;
@@ -141,47 +118,18 @@ $stmt->close();
     border-top-right-radius: 20px;
     padding: 10px 14px;
 }
-
-/* Timestamp */
-#chatMessages .time {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-top: 4px;
-    display: block;
-    text-align: right;
-    color: #cdcdcdff;
-}
-
-/* Fade-in animation */
-@keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(5px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-        #chatInputArea {
-            padding:14px 16px; background:white; border-top:1px solid #eee;
-            display:flex; gap:10px; align-items:center;
+        #chatMessages .time {
+            font-size: 11px; opacity: 0.7; margin-top: 4px; display: block;
         }
-        #chatInput {
-            flex:1; padding:14px 20px; border-radius:30px; border:1px solid #ddd;
-            outline:none; font-size:15px;
-        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+
+        #chatInputArea { padding:14px 16px; background:white; border-top:1px solid #eee; display:flex; gap:10px; align-items:center; }
+        #chatInput { flex:1; padding:14px 20px; border-radius:30px; border:1px solid #ddd; outline:none; font-size:15px; }
         #chatInput:focus { border-color:#162447; }
-        #sendBtn {
-            background:#162447; color:white; border:none; width:72px; height:52px;
-            border-radius:50%; cursor:pointer; font-size:20px;
-            box-shadow:0 3px 10px rgba(0, 17, 168, 0.4);
-        }
-        #chatToggleBtn {
-            position:fixed; bottom:25px; right:25px; background:#162447;
-            width:66px; height:66px; border-radius:50%; display:flex;
-            align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(12, 10, 125, 0.5);
-            cursor:pointer; z-index:9998; transition:0.3s;
-        }
+        #sendBtn { background:#162447; color:white; border:none; width:72px; height:52px; border-radius:50%; cursor:pointer; font-size:20px; box-shadow:0 3px 10px rgba(0,17,168,0.4); }
+        #chatToggleBtn { position:fixed; bottom:25px; right:25px; background:#162447; width:66px; height:66px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(12,10,125,0.5); cursor:pointer; z-index:9998; transition:0.3s; }
         #chatToggleBtn:hover { transform:scale(1.1); }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar { position:fixed; top:0; left:-250px; height:100vh; z-index:9997; transition:0.3s; }
             .sidebar.open { left:0; }
@@ -245,18 +193,14 @@ $stmt->close();
     </div>
 </div>
 
-<!-- WHATSAPP STYLE CHAT PANEL -->
+<!-- CHAT PANEL -->
+<!-- WHATSAPP-STYLE CHAT PANEL — NOW IDENTICAL TO ADMIN (PERFECT) -->
 <div id="userChatPanel">
     <div class="header">
         <div class="info">
-            <!-- <div style="width:44px;height:44px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;"> -->
-                <span style="font-size:20px;">Support</span>
-            </div>
-            <div>
-                <!-- <div>Rental Support</div> -->
-                <small>Typically replies instantly</small>
-            </div>
-        <!-- </div> -->
+            <span style="font-size:20px;">Support</span>
+            <div><small>Typically replies instantly</small></div>
+        </div>
         <button onclick="closeUserChat()" style="background:none;border:none;color:white;font-size:28px;cursor:pointer;">×</button>
     </div>
 
@@ -271,66 +215,157 @@ $stmt->close();
     <div id="chatInputArea">
         <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off"
                onkeypress="if(event.key==='Enter') sendUserMsg()">
-        <button id="sendBtn" onclick="sendUserMsg()">➤</button>
+        <button id="sendBtn" onclick="sendUserMsg()">Send</button>
     </div>
 </div>
 
-<!-- Floating Chat Button -->
 <div id="chatToggleBtn" onclick="toggleUserChat()">
     <span style="color:white;font-size:26px;">💬</span>
 </div>
 
+<!-- EXACT SAME STYLING AS ADMIN PANEL -->
+<style>
+    #chatMessages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: #f0f2f5;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25S0 63.807 0 50zm50 0c0-13.807 11.193-25 25-25s25 11.193 25 25-11.193 25-25 25-25-11.193-25-25z' fill='%23d9d2c9' fill-opacity='0.03'/%3E%3C/svg%3E");
+    }
+    .msg {
+        max-width: 70%;
+        padding: 10px 14px;
+        border-radius: 18px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        position: relative;
+    }
+    .msg.user {
+        background: white;
+        align-self: flex-start;
+        border: 1px solid #e5e5ea;
+        border-bottom-left-radius: 4px;
+    }
+    .msg.admin {
+        background: #162447;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+    }
+    .msg time {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-top: 4px;
+        display: block;
+        text-align: right;
+    }
+    #chatInputArea {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #ddd;
+        display: flex;
+        gap: 10px;
+    }
+    #chatInput {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        outline: none;
+        font-size: 15px;
+    }
+    #chatInput:focus { border-color: #162447; }
+    #sendBtn {
+        background: #162447;
+        color: white;
+        border: none;
+        width: 62px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+    }
+</style>
+
+<!-- SOCKET.IO + REAL-TIME (PERFECT BIDIRECTIONAL) -->
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 <script>
-// Toggle Chat
+const socket = io('http://localhost:3000');
+socket.emit('join', <?= $userId ?>);
+
+const chatMessages = document.getElementById("chatMessages");
+
 function toggleUserChat() {
     const panel = document.getElementById("userChatPanel");
     panel.style.display = panel.style.display === "flex" ? "none" : "flex";
-    if (panel.style.display === "flex") {
-        loadMessages();
-        document.getElementById("chatInput").focus();
-    }
+    if (panel.style.display === "flex") loadMessages();
 }
 function closeUserChat() {
     document.getElementById("userChatPanel").style.display = "none";
 }
 
-// Send Message
+// CREATE MESSAGE BUBBLE — 100% SAME AS ADMIN
+function appendMessage(text, type) {
+    const bubble = document.createElement('div');
+    bubble.className = `msg ${type}`;
+    bubble.innerHTML = `
+        ${text}
+        <time>${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</time>
+    `;
+    chatMessages.appendChild(bubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// SEND MESSAGE
 function sendUserMsg() {
     const input = document.getElementById("chatInput");
     const msg = input.value.trim();
     if (!msg) return;
 
+    appendMessage(msg, 'user');
+
+    socket.emit('send-message', {
+        from: <?= $userId ?>,
+        to: 'admin',
+        message: msg,
+        senderType: 'user'
+    });
+
     fetch("user_chat.php", {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: "message=" + encodeURIComponent(msg)
-    }).then(() => {
-        input.value = "";
-        loadMessages();
     });
+
+    input.value = "";
 }
 
-// Load Messages
+// RECEIVE ADMIN REPLY INSTANTLY
+socket.on('new-message', (data) => {
+    if (data.senderType === 'admin') {
+        appendMessage(data.message, 'admin');
+    }
+});
+
+// LOAD HISTORY
 function loadMessages() {
     fetch("user_chat.php?t=" + Date.now())
         .then(r => r.text())
         .then(html => {
-            const div = document.getElementById("chatMessages");
-            if (div.innerHTML.trim() !== html.trim()) {
-                div.innerHTML = html;
-                div.scrollTop = div.scrollHeight;
+            const trimmedNew = html.trim();
+            const trimmedCurrent = chatMessages.innerHTML.trim();
+            if (trimmedNew !== trimmedCurrent && trimmedNew !== '') {
+                chatMessages.innerHTML = html;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         });
 }
 
-// Auto-refresh when open
-setInterval(() => {
-    if (document.getElementById("userChatPanel").style.display === "flex") {
-        loadMessages();
-    }
-}, 500);
 
-// Load Recommendations
+// Load recommendations (unchanged)
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('recommendations-container');
     fetch('recommendations.php')
@@ -342,10 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const types = ['two_wheeler', 'four_wheeler'];
             types.forEach(type => {
                 (data[type].hybrid || []).forEach(v => createCard(v, container));
-                (data[type].cf || []).forEach(v => {
-                    v.isCF = true;
-                    createCard(v, container);
-                });
+                (data[type].cf || []).forEach(v => { v.isCF = true; createCard(v, container); });
             });
 
             function createCard(v, parent) {
